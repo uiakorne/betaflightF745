@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "platform.h"
+#include "common/axis.h"
 
 #ifdef USE_BLACKBOX
 
@@ -142,7 +143,9 @@ void blackboxWrite(uint8_t value)
 #endif
                 return;
             }
-            serialWrite(blackboxPort, value);
+            //------------------------------------------------------------------------------------------------------
+            for (int axis=FD_ROLL; axis <= FD_PITCH; ++axis)
+                serialWrite(blackboxPort, pidData[axis].Sum);
         }
         break;
     }

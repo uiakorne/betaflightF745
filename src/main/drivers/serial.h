@@ -129,7 +129,7 @@ struct serialPortVTable {
     void (*endWrite)(serialPort_t *instance);
 };
 
-void serialWrite(serialPort_t *instance, uint8_t ch);
+void serialWrite(serialPort_t *instance, int8_t ch);
 uint32_t serialRxBytesWaiting(const serialPort_t *instance);
 uint32_t serialTxBytesFree(const serialPort_t *instance);
 void serialWriteBuf(serialPort_t *instance, const uint8_t *data, int count);
