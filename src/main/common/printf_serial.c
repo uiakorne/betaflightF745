@@ -57,8 +57,7 @@ int tfp_printf(const char *fmt, ...)
 static void _putc(void *p, char c)
 {
     UNUSED(p);
-    UNUSED(c);
-//    serialWrite(printfSerialPort, c);
+    serialWrite(printfSerialPort, c);
 }
 
 
@@ -74,8 +73,7 @@ int fputc(int c, FILE *f)
 {
     // let DMA catch up a bit when using set or dump, we're too fast.
     while (!isSerialTransmitBufferEmpty(printfSerialPort));
-    //serialWrite(printfSerialPort, c);
-    UNUSED(c);
+    serialWrite(printfSerialPort, c);
     return c;
 }
 
