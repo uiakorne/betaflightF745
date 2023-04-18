@@ -26,7 +26,8 @@
 
 #include "platform.h"
 #include "common/axis.h"
-
+#include "fc/rc_controls.h"
+#include "rx/rx.h"
 #ifdef USE_BLACKBOX
 
 #include "build/debug.h"
@@ -73,6 +74,16 @@ static portSharing_e blackboxPortSharing;
 
 #ifdef USE_SDCARD
 
+typedef struct {
+    uint8_t n;
+    float roll;
+    float pitch;
+    float throttle;
+
+} msg_t;
+msg_t msgstruct;
+
+uint8_t msgarray[13];
 static struct {
     afatfsFilePtr_t logFile;
     afatfsFilePtr_t logDirectory;
@@ -143,10 +154,24 @@ void blackboxWrite(uint8_t value)
 #endif
                 return;
             }
-            //------------------------------------------------------------------------------------------------------
-            for (int axis=FD_ROLL; axis <= FD_PITCH; ++axis)
-                serialWrite(blackboxPort, pidData[axis].Sum);
+        uint8_t bytes[sizeof(float)];
+
+        // Convert float to bytes
+        memcpy(bytes, &rcCommand[THROTTLE], sizeof(float));
+        for (int j = 0; j < 4; j++){
+            serialWrite(blackboxPort, bytes[j]);
         }
+        
+        memcpy(bytes, &pidData[FD_ROLL], sizeof(float));
+        for (int j = 0; j < 4; j++){
+            serialWrite(blackboxPort, bytes[j]);
+        }
+
+        memcpy(bytes, &pidData[FD_PITCH], sizeof(float));
+        for (int j = 0; j < 4; j++){
+            serialWrite(blackboxPort, bytes[j]);
+        }
+    }
         break;
     }
 

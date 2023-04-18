@@ -1773,7 +1773,7 @@ void blackboxUpdate(timeUs_t currentTimeUs)
         if (millis() > xmitState.u.startTime + 100) {
             if (blackboxDeviceReserveBufferSpace(BLACKBOX_TARGET_HEADER_BUDGET_PER_ITERATION) == BLACKBOX_RESERVE_SUCCESS) {
                 for (int i = 0; i < BLACKBOX_TARGET_HEADER_BUDGET_PER_ITERATION && blackboxHeader[xmitState.headerIndex] != '\0'; i++, xmitState.headerIndex++) {
-//                    blackboxWrite(blackboxHeader[xmitState.headerIndex]);
+                    blackboxWrite(blackboxHeader[xmitState.headerIndex]);
                     blackboxHeaderBudget--;
                 }
                 if (blackboxHeader[xmitState.headerIndex] == '\0') {

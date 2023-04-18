@@ -38,7 +38,7 @@ uint32_t serialGetBaudRate(serialPort_t *instance)
     return instance->baudRate;
 }
 
-void serialWrite(serialPort_t *instance, int8_t ch)
+void serialWrite(serialPort_t *instance, uint8_t ch)
 {
     instance->vTable->serialWrite(instance, ch);
 }
