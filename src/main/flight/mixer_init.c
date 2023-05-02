@@ -195,8 +195,8 @@ static const motorMixer_t mixerAtail4[] = {
 
 #if defined(USE_UNCOMMON_MIXERS)
 static const motorMixer_t mixerDualcopter[] = {
-    { 1.0f,  0.0f,  0.0f, -1.0f },          // LEFT
-    { 1.0f,  0.0f,  0.0f,  1.0f },          // RIGHT
+    { 1.0f,  0.0f,  0.0f, 0.0f },          // LEFT
+    { 0.0f,  0.0f,  0.0f,  1.0f },          // RIGHT
 };
 #else
 #define mixerDualcopter NULL
