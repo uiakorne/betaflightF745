@@ -19,6 +19,10 @@
  */
 
 #pragma once
+#include "drivers/serial.h"
+extern float duty;
+//extern float duty_prev;
+void GetDutySignal(void);
 
 typedef enum {
     BLACKBOX_RESERVE_SUCCESS,

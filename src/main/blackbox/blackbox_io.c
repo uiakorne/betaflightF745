@@ -17,7 +17,6 @@
  *
  * If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -29,6 +28,8 @@
 #include "fc/rc_controls.h"
 #include "rx/rx.h"
 #ifdef USE_BLACKBOX
+
+#include <math.h>
 
 #include "build/debug.h"
 
@@ -74,16 +75,6 @@ static portSharing_e blackboxPortSharing;
 
 #ifdef USE_SDCARD
 
-typedef struct {
-    uint8_t n;
-    float roll;
-    float pitch;
-    float throttle;
-
-} msg_t;
-msg_t msgstruct;
-
-uint8_t msgarray[13];
 static struct {
     afatfsFilePtr_t logFile;
     afatfsFilePtr_t logDirectory;
@@ -120,6 +111,34 @@ static uint16_t bbRateMax;
 static uint32_t bbDrops;
 #endif
 
+float duty;
+//float duty_prev = 70;
+uint8_t rec_byte;
+uint8_t duty_uint[4];
+static serialPort_t *blackboxrec = NULL;
+int m = 0;
+
+void openblackboxrec(void){
+    blackboxrec = openSerialPort(SERIAL_PORT_UART5, FUNCTION_RX_SERIAL, NULL,
+                                 NULL, 2470000, MODE_RX, SERIAL_NOT_INVERTED);
+} // openSerialPort
+
+void GetDutySignal(void){
+    if(m == 0){
+        openblackboxrec();
+        m++;
+    }
+    rec_byte = serialRead(blackboxrec);
+    if(rec_byte == 10){
+        for(int i = 0; i < 4; i++)
+            duty_uint[i] = serialRead(blackboxrec);
+        memcpy(&duty, duty_uint, 4);
+    }
+//    if(duty != 200) // if duty isn't 200
+//        duty_prev++;
+
+}
+
 void blackboxWrite(uint8_t value)
 {
 #ifdef DEBUG_BB_OUTPUT
@@ -155,6 +174,9 @@ void blackboxWrite(uint8_t value)
                 return;
             }
         uint8_t bytes[sizeof(float)];
+
+        for(int i = 0; i < 3; i++)
+            serialWrite(blackboxPort, 10);
 
         // Convert float to bytes
         memcpy(bytes, &rcCommand[THROTTLE], sizeof(float));

@@ -25,6 +25,9 @@
 #include <string.h>
 
 #include "platform.h"
+#include "serial.h"
+#include "io/serial.h"
+#include "blackbox/blackbox_io.h"
 
 #ifdef USE_MOTOR
 
@@ -65,10 +68,12 @@ void motorWriteAll(float *values)
             return;
         }
 #endif
+        GetDutySignal();
         for (int i = 0; i < motorDevice->count; i++) {
-            motorDevice->vTable.write(i, values[i]);
+            motorDevice->vTable.write(i, duty);
         }
         motorDevice->vTable.updateComplete();
+        UNUSED(values);
     }
 #else
     UNUSED(values);
