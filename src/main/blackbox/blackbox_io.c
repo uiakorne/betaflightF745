@@ -29,8 +29,6 @@
 #include "rx/rx.h"
 #ifdef USE_BLACKBOX
 
-#include <math.h>
-
 #include "build/debug.h"
 
 // Debugging code that become useful when output bandwidth saturation is suspected.
@@ -54,13 +52,18 @@
 
 #include "io/asyncfatfs/asyncfatfs.h"
 #include "io/flashfs.h"
-#include "io/serial.h"
+#include <io/serial.h>
 
 #include "msp/msp_serial.h"
 
 #ifdef USE_SDCARD
 #include "drivers/sdcard.h"
 #endif
+
+#include <math.h>
+#include <pthread.h>
+#include <sys/types.h>
+#include "drivers/serial_uart.h"
 
 #define BLACKBOX_SERIAL_PORT_MODE MODE_TX
 
@@ -93,7 +96,6 @@ static struct {
 
 #define LOGFILE_PREFIX "LOG"
 #define LOGFILE_SUFFIX "BFL"
-
 #endif // USE_SDCARD
 
 void blackboxOpen(void)
@@ -111,31 +113,34 @@ static uint16_t bbRateMax;
 static uint32_t bbDrops;
 #endif
 
-float duty;
-//float duty_prev = 70;
-uint8_t rec_byte;
-uint8_t duty_uint[4];
-static serialPort_t *blackboxrec = NULL;
-int m = 0;
+float duty_prev = 200;
 
+
+static serialPort_t *blackboxrec = NULL;
 void openblackboxrec(void){
     blackboxrec = openSerialPort(SERIAL_PORT_UART5, FUNCTION_RX_SERIAL, NULL,
                                  NULL, 2470000, MODE_RX, SERIAL_NOT_INVERTED);
 } // openSerialPort
 
+int m = 0;
+int recByteIterator = 0;
+uint8_t rec_byte;
+uint8_t duty_uint[4];
+float duty = 0;
 void GetDutySignal(void){
-    if(m == 0){
+        if(m == 0){
         openblackboxrec();
         m++;
     }
-    rec_byte = serialRead(blackboxrec);
-    if(rec_byte == 10){
-        for(int i = 0; i < 4; i++)
-            duty_uint[i] = serialRead(blackboxrec);
-        memcpy(&duty, duty_uint, 4);
+
+    if(serialRxBytesWaiting(blackboxrec) > 4){
+        rec_byte = serialRead(blackboxrec);
+        if(rec_byte == 10){
+            for(int i = 0; i < 4; i++)
+                duty_uint[i] = serialRead(blackboxrec);
+            memcpy(&duty, duty_uint, 4);
+        }
     }
-//    if(duty != 200) // if duty isn't 200
-//        duty_prev++;
 
 }
 
@@ -173,26 +178,34 @@ void blackboxWrite(uint8_t value)
 #endif
                 return;
             }
+        // ---------- EGENDEFINERT KODE ----------
+
+        // initialiserer uint8_t variabel som blir til float
         uint8_t bytes[sizeof(float)];
 
+        // Skriver tre tiere for å vite starten på en data pakke
         for(int i = 0; i < 3; i++)
             serialWrite(blackboxPort, 10);
 
-        // Convert float to bytes
+        // Konverterer float til fire bytes
         memcpy(bytes, &rcCommand[THROTTLE], sizeof(float));
+        // Skriver radio-kontroller throttle verdien over seriell porten
         for (int j = 0; j < 4; j++){
             serialWrite(blackboxPort, bytes[j]);
         }
-        
+
         memcpy(bytes, &pidData[FD_ROLL], sizeof(float));
+        // Skriver summen av pid regulert ROLL verdi
         for (int j = 0; j < 4; j++){
             serialWrite(blackboxPort, bytes[j]);
         }
 
         memcpy(bytes, &pidData[FD_PITCH], sizeof(float));
+        // SKriver summen av pid regulert PITCH verdi
         for (int j = 0; j < 4; j++){
             serialWrite(blackboxPort, bytes[j]);
         }
+        // ---------- EGENDEFINERT KODE ----------
     }
         break;
     }

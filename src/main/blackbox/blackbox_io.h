@@ -20,8 +20,20 @@
 
 #pragma once
 #include "drivers/serial.h"
+
+#include <pthread.h>
+#include <sys/types.h>
+
+//typedef struct{
+//    float dutyy;
+//    pthread_mutex_t lock;
+//}alia;
+//alia *Myvariable;
 extern float duty;
+
 //extern float duty_prev;
+//void pthread_mutex_lock(pthread_mutex_t *pInt);
+//void pthread_mutex_unlock(pthread_mutex_t *pInt);
 void GetDutySignal(void);
 
 typedef enum {

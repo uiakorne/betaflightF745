@@ -155,7 +155,7 @@ static void uartSetMode(serialPort_t *instance, portMode_e mode)
     uartReconfigure(uartPort);
 }
 
-static uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
+uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
 {
     const uartPort_t *uartPort = (const uartPort_t*)instance;
 

@@ -29,6 +29,8 @@
 // Various serial routines return the buffer occupied size as uint8_t which would need to be extended in order to
 // increase size further.
 
+uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance);
+
 typedef enum {
     UARTDEV_1 = 0,
     UARTDEV_2 = 1,

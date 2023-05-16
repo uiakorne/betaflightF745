@@ -29,6 +29,7 @@
 #include "io/serial.h"
 #include "blackbox/blackbox_io.h"
 
+
 #ifdef USE_MOTOR
 
 #include "common/maths.h"
@@ -58,7 +59,6 @@ void motorShutdown(void)
     motorDevice->initialized = false;
     delayMicroseconds(1500);
 }
-
 void motorWriteAll(float *values)
 {
 #ifdef USE_PWM_OUTPUT
